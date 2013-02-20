@@ -20,8 +20,8 @@ icon executes a user-defined command.
 
 # Configuration #
 
-hasmail looks in `~/.config/hasmail` and expects a file in simple INI syntax.
-The configuration file consists of (currently) one global option and one or more
+hasmail looks for `~/.hasmailrc` and expects a file in simple INI syntax. The
+configuration file consists of (currently) one global option and one or more
 accounts, each with multiple fields.
 
 ## Global fields ##

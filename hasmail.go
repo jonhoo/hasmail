@@ -145,7 +145,7 @@ func connect(notify chan bool,
 // and watches the notify channel for messages telling it to update the status
 // icon.
 func main() {
-	conf, err := goconf.ReadConfigFile(os.Getenv("HOME") + "/.config/hasmail")
+	conf, err := goconf.ReadConfigFile(os.Getenv("HOME") + "/.hasmailrc")
 	if err != nil {
 		fmt.Println("Failed to load configuration file, exiting...\n", err)
 		return

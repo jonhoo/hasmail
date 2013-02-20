@@ -10,9 +10,9 @@ connection to get immediately notified of changes on the server.
 
 The system tray icon switches between three main icons:
 
-  - an empty document, signifying no new emails
-  - a single document, signifying a single new email across all accounts
-  - a pile of documents, signifying multiple new emails across all accounts
+ - an empty document, signifying no new emails
+ - a single document, signifying a single new email across all accounts
+ - a pile of documents, signifying multiple new emails across all accounts
 
 When hovering the mouse over the tray icon, a tooltip will be shown which
 displays the number of new messages for each configured account. Clicking the
@@ -26,19 +26,20 @@ accounts, each with multiple fields.
 
 ## Global fields ##
 
-  - click: this command will be executed when clicking the tray icon
+ - click: this command will be executed when clicking the tray icon
 
-## Per-account fields ##
+## Account fields ##
 
-	- [name]: The value in [] can be anything, and will be what is shown in the
-		tooltip. Required.
-  - hostname: The address (+ port) to connect to. MUST currently be SSL/TLS
-		enabled. Required.
-	- username: Username for authentication. Required.
-	- password: Password for authentication. Required.
-	- click: An optional command to execute when clicking the tray icon if this,
-		and only this, account has new messages. If this option is present, it
-		overrides the global click option in the described scenario.
+The value in [] can be anything, and will be what is shown in the tooltip. The
+options for an account are as follows:
+
+ - hostname: The address (+ port) to connect to. MUST currently be SSL/TLS
+   enabled. Required.
+ - username: Username for authentication. Required.
+ - password: Password for authentication. Required.
+ - click: An optional command to execute when clicking the tray icon if this,
+   and only this, account has new messages. If this option is present, it
+   overrides the global click option in the described scenario.
 
 # Installation #
 
@@ -49,9 +50,9 @@ exiting...". Create your config and you're ready!
 
 # Major dependencies #
 
-	- https://github.com/mattn/go-gtk/
-	- http://code.google.com/p/go-imap/
-  - https://github.com/dlintw/goconf/
+ - https://github.com/mattn/go-gtk/
+ - http://code.google.com/p/go-imap/
+ - https://github.com/dlintw/goconf/
 
 # License #
 

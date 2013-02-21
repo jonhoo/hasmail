@@ -74,22 +74,18 @@ func Connect(notify chan bool,
 
 	// Process responses while idling
 	for cmd.InProgress() {
-		// Wait for the next response (no timeout)
-		c.Recv(-1)
+		// Wait for server messages
+		// Refresh every 29 minutes to avoid disconnection (see spec)
+		c.Recv(29 * time.Minute)
 
-		// Because the example tells us to do it...
+		// We don't really care about the data, just that there *is* data
 		cmd.Data = nil
-
-		// Process unilateral server data
-		for _, _ = range c.Data {
-			c.IdleTerm()
-			fmt.Printf("%s inbox state changed to: ", name)
-			UpdateTray(c, notify, name)
-			cmd, _ = c.Idle()
-			break
-		}
-
-		// Don't want to read the same data again next round
 		c.Data = nil
+
+		// Update our view of the inbox
+		c.IdleTerm()
+		fmt.Printf("%s inbox state: ", name)
+		UpdateTray(c, notify, name)
+		cmd, _ = c.Idle()
 	}
 }

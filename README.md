@@ -18,6 +18,9 @@ When hovering the mouse over the tray icon, a tooltip will be shown which
 displays the number of new messages for each configured account. Clicking the
 icon executes a user-defined command.
 
+Upon receiving new messages, an OSD notification will be displayed showing the
+subject lines of any new messages.
+
 # Configuration #
 
 hasmail looks for `~/.hasmailrc` and expects a file in simple INI syntax. The

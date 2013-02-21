@@ -6,6 +6,9 @@ package main
 import (
 	"fmt"
 	"os"
+	// for parsing mail
+	"bytes"
+	"net/mail"
 	// for signals
 	"syscall"
 	"os/signal"
@@ -25,9 +28,13 @@ import (
 	"time"
 )
 
-// unseen is a map from host (as defined in the config) to the number of unseen
-// messages for that host
-var unseen = map[string]int{}
+// unseen is a map from account (as defined in the config) to the UIDs of unseen
+// messages for that account
+var unseen = map[string] []uint32 {}
+
+// errs is a map from account (as defined in the config) to an error number for
+// that account's connection. 0 = no error
+var errs = map[string] int {}
 
 // updateTray is called whenever a client detects that the number of unseen
 // messages *may* have changed. It will search the selected folder for unseen
@@ -36,7 +43,11 @@ var unseen = map[string]int{}
 func updateTray(c *imap.Client, notify chan bool, name string) {
 	cmd, _ := c.Search("UNSEEN")
 
-	numUnseen := 0
+	if _,ok := unseen[name]; !ok {
+		unseen[name] = []uint32 {}
+	}
+
+	unseenMessages := []uint32 {}
 	for cmd.InProgress() {
 		// Wait for the next response (no timeout)
 		c.Recv(-1)
@@ -44,7 +55,7 @@ func updateTray(c *imap.Client, notify chan bool, name string) {
 		// Process command data
 		for _, rsp := range cmd.Data {
 			result := rsp.SearchResults()
-			numUnseen += len(result)
+			unseenMessages = append(unseenMessages, result...)
 		}
 
 		// Reset for next run
@@ -52,8 +63,71 @@ func updateTray(c *imap.Client, notify chan bool, name string) {
 		c.Data = nil
 	}
 
-	fmt.Printf("%d unseen\n", numUnseen)
-	unseen[name] = numUnseen
+	fmt.Printf("%d unseen\n", len(unseenMessages))
+
+	// Find messages that the user hasn't been notified of
+	// TODO: Make this optional/configurable
+	newUnseen, _ := imap.NewSeqSet("")
+	numNewUnseen := 0
+	for _, uid := range unseenMessages {
+		seen := false
+		for _, olduid := range unseen[name] {
+			if olduid == uid {
+				seen = true
+				break
+			}
+		}
+
+		if !seen {
+			newUnseen.AddNum(uid)
+			numNewUnseen++
+		}
+	}
+
+	// If we do have new unseen messages, fetch and display them
+	if numNewUnseen > 0 {
+		messages := make([]string, numNewUnseen)
+		i := 0
+
+		// Fetch headers...
+		cmd, _ = c.Fetch(newUnseen, "RFC822.HEADER")
+		for cmd.InProgress() {
+			c.Recv(-1)
+			for _, rsp := range cmd.Data {
+					header := imap.AsBytes(rsp.MessageInfo().Attrs["RFC822.HEADER"])
+					if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
+						messages[i] = msg.Header.Get("Subject")
+						i++
+					}
+			}
+
+			cmd.Data = nil
+			c.Data = nil
+		}
+
+		// Print them in reverse order to get newest first
+		notification := ""
+		for ; i > 0; i-- {
+			notification += "> " + messages[i-1] + "\n"
+		}
+		notification = strings.TrimRight(notification, "\n")
+		fmt.Println(notification)
+
+		// And send them with notify-send!
+		title := fmt.Sprintf("%s has new mail (%d unseen)", name, len(unseenMessages))
+		sh := exec.Command("/usr/bin/notify-send",
+											 "-i", "notification-message-email",
+											 "-c", "email",
+											 title, notification)
+
+		err := sh.Start()
+		if err != nil {
+			fmt.Println("Failed to notify user...")
+			fmt.Println(err)
+		}
+	}
+
+	unseen[name] = unseenMessages
 
 	// Let main process know something has changed
 	notify <- true
@@ -75,7 +149,7 @@ func connect(notify chan bool,
 	if err != nil {
 		fmt.Printf("%s: Connection failed\n", name)
 		fmt.Println(" ", err)
-		unseen[name] = -1
+		errs[name] = 1
 		notify <- false
 		return
 	}
@@ -87,7 +161,7 @@ func connect(notify chan bool,
 	// Time to abandon ship!
 	if !c.Caps["IDLE"] {
 		fmt.Printf("%s: Server does not support IMAP IDLE, exiting...\n", name)
-		unseen[name] = -2
+		errs[name] = 2
 		notify <- false
 		return
 	}
@@ -97,14 +171,14 @@ func connect(notify chan bool,
 		_, err = c.Login(username, password)
 	} else {
 		fmt.Printf("%s: No login presented, exiting...\n", name)
-		unseen[name] = -3
+		errs[name] = 3
 		notify <- false
 		return
 	}
 
 	if err != nil {
 		fmt.Printf("%s: Login failed, exiting...\n", name)
-		unseen[name] = -4
+		errs[name] = 4
 		notify <- false
 		return
 	}
@@ -188,8 +262,8 @@ func main() {
 		nonZero := 0
 		nonZeroAccount := ""
 
-		for account, numUnseen := range unseen {
-			if numUnseen > 0 {
+		for account, unseenList := range unseen {
+			if len(unseenList) > 0 {
 				nonZero++
 				nonZeroAccount = account
 			}
@@ -247,22 +321,32 @@ func main() {
 		case <-notify:
 			totUnseen := 0
 			s := ""
-			for account, numUnseen := range unseen {
+			for account, e := range errs {
+				s += account + ": "
+
+				switch e {
+				case 1:
+					s += "Connection failed!"
+				case 2:
+					s += "IDLE not supported!"
+				case 3:
+					s += "No login credentials given!"
+				case 4:
+					s += "Login failed!"
+				}
+
+				s += "\n"
+			}
+
+			for account, unseenList := range unseen {
+				numUnseen := len(unseenList)
+
 				if numUnseen >= 0 {
 					totUnseen += numUnseen
 				}
 				s += account + ": "
 
-				// negative numbers indicate errors, >= 0 are number of unseen messages
 				switch numUnseen {
-				case -1:
-					s += "Connection failed!"
-				case -2:
-					s += "IDLE not supported!"
-				case -3:
-					s += "No login credentials given!"
-				case -4:
-					s += "Login failed!"
 				case 0:
 					s += "No new messages"
 				case 1:

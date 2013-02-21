@@ -15,7 +15,7 @@ import (
 
 // unseen is a map from account (as defined in the config) to the UIDs of unseen
 // messages for that account
-var Unseen = map[string] []uint32 {}
+var Unseen = map[string][]uint32{}
 
 // updateTray is called whenever a client detects that the number of unseen
 // messages *may* have changed. It will search the selected folder for unseen
@@ -30,11 +30,11 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 		return
 	}
 
-	if _,ok := Unseen[name]; !ok {
-		Unseen[name] = []uint32 {}
+	if _, ok := Unseen[name]; !ok {
+		Unseen[name] = []uint32{}
 	}
 
-	unseenMessages := []uint32 {}
+	unseenMessages := []uint32{}
 	for cmd.InProgress() {
 		// Wait for the next response (no timeout)
 		c.Recv(-1)
@@ -81,11 +81,11 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 		for cmd.InProgress() {
 			c.Recv(-1)
 			for _, rsp := range cmd.Data {
-					header := imap.AsBytes(rsp.MessageInfo().Attrs["RFC822.HEADER"])
-					if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
-						messages[i] = msg.Header.Get("Subject")
-						i++
-					}
+				header := imap.AsBytes(rsp.MessageInfo().Attrs["RFC822.HEADER"])
+				if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
+					messages[i] = msg.Header.Get("Subject")
+					i++
+				}
 			}
 
 			cmd.Data = nil
@@ -103,9 +103,9 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 		// And send them with notify-send!
 		title := fmt.Sprintf("%s has new mail (%d unseen)", name, len(unseenMessages))
 		sh := exec.Command("/usr/bin/notify-send",
-											 "-i", "notification-message-email",
-											 "-c", "email",
-											 title, notification)
+			"-i", "notification-message-email",
+			"-c", "email",
+			title, notification)
 
 		err := sh.Start()
 		if err != nil {

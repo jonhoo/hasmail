@@ -4,13 +4,13 @@
 package main
 
 import (
-	"hasmail/parts"
 	"fmt"
+	"hasmail/parts"
 	"os"
 	"time"
 	// for signals
-	"syscall"
 	"os/signal"
+	"syscall"
 	// for configuration
 	"github.com/dlintw/goconf"
 	// for tray icon
@@ -38,7 +38,7 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 
 	// GTK engage!
-	gtk.Init(&os.Args);
+	gtk.Init(&os.Args)
 	glib.SetApplicationName("hasmail")
 	defer gtk.MainQuit()
 
@@ -137,7 +137,7 @@ func main() {
 	// Keep updating the status icon (or quit if the user wants us to)
 	for {
 		select {
-		case <- quit:
+		case <-quit:
 			return
 		case <-notify:
 			totUnseen := 0
@@ -154,6 +154,9 @@ func main() {
 					s += "No login credentials given!"
 				case 4:
 					s += "Login failed!"
+				case 5:
+					s += "Connection dropped!"
+					fmt.Printf("Detected dropped connection for %s\n", account)
 				}
 
 				s += "\n"

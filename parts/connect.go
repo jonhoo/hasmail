@@ -9,18 +9,18 @@ import (
 
 // errs is a map from account (as defined in the config) to an error number for
 // that account's connection. 0 = no error
-var Errs = map[string] int {}
+var Errs = map[string]int{}
 
 // connect sets up a new IMAPS connection to the given host using the given
 // credentials. The name parameter should be a human-readable name for this
 // mailbox.
 func Connect(notify chan bool,
-						 name string,
-						 address string,
-						 username string,
-						 password string,
-						 folder string,
-						 poll time.Duration) {
+	name string,
+	address string,
+	username string,
+	password string,
+	folder string,
+	poll time.Duration) {
 
 	// Connect to the server
 	fmt.Printf("%s: Connecting to server...\n", name)
@@ -66,11 +66,18 @@ func Connect(notify chan bool,
 	c.Select(folder, true)
 
 	// Get initial unread messages count
-	fmt.Printf("%s: Initial state: ", name)
+	fmt.Printf("%s initial state: ", name)
 	UpdateTray(c, notify, name)
 
 	// And go to IMAP IDLE mode
 	cmd, err := c.Idle()
+
+	if err != nil {
+		fmt.Printf("%s failed to look for new emails\n", name)
+		fmt.Println("  ", err)
+		Errs[name] = 5
+		return
+	}
 
 	// Process responses while idling
 	for cmd.InProgress() {
@@ -87,6 +94,13 @@ func Connect(notify chan bool,
 		c.IdleTerm()
 		fmt.Printf("%s state: ", name)
 		UpdateTray(c, notify, name)
-		cmd, _ = c.Idle()
+		cmd, err = c.Idle()
+
+		if err != nil {
+			fmt.Printf("%s failed to look for new emails\n", name)
+			fmt.Println("  ", err)
+			Errs[name] = 5
+			return
+		}
 	}
 }

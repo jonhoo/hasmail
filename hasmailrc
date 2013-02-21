@@ -10,3 +10,10 @@ hostname=imap.example.net
 username=me@example.net
 password=differentpassword
 click=urxvt -e sh -c "mutt -e 'source ~/.mutt/example.net.account'"
+
+[@nonstandard.com]
+hostname=mx.nonstandard.com
+username=me
+password=LKADJW
+folder=mybox
+poll=10

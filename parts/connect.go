@@ -2,10 +2,9 @@ package parts
 
 import (
 	"fmt"
+	"time"
 	// http://godoc.org/code.google.com/p/go-imap/go1/imap
 	"code.google.com/p/go-imap/go1/imap"
-	// for logout delay
-	"time"
 )
 
 // errs is a map from account (as defined in the config) to an error number for
@@ -19,7 +18,9 @@ func Connect(notify chan bool,
 						 name string,
 						 address string,
 						 username string,
-						 password string) {
+						 password string,
+						 folder string,
+						 poll time.Duration) {
 
 	// Connect to the server
 	fmt.Printf("%s: Connecting to server...\n", name)
@@ -62,11 +63,10 @@ func Connect(notify chan bool,
 		return
 	}
 
-	// TODO: Add support for other folders than INBOX
-	c.Select("INBOX", true)
+	c.Select(folder, true)
 
 	// Get initial unread messages count
-	fmt.Printf("%s: Initial inbox state: ", name)
+	fmt.Printf("%s: Initial state: ", name)
 	UpdateTray(c, notify, name)
 
 	// And go to IMAP IDLE mode
@@ -75,8 +75,9 @@ func Connect(notify chan bool,
 	// Process responses while idling
 	for cmd.InProgress() {
 		// Wait for server messages
-		// Refresh every 29 minutes to avoid disconnection (see spec)
-		c.Recv(29 * time.Minute)
+		// Refresh every `poll` to avoid disconnection
+		// Defaults to 29 minutes (see spec)
+		c.Recv(poll)
 
 		// We don't really care about the data, just that there *is* data
 		cmd.Data = nil
@@ -84,7 +85,7 @@ func Connect(notify chan bool,
 
 		// Update our view of the inbox
 		c.IdleTerm()
-		fmt.Printf("%s inbox state: ", name)
+		fmt.Printf("%s state: ", name)
 		UpdateTray(c, notify, name)
 		cmd, _ = c.Idle()
 	}

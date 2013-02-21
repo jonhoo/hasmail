@@ -7,6 +7,7 @@ import (
 	"hasmail/parts"
 	"fmt"
 	"os"
+	"time"
 	// for signals
 	"syscall"
 	"os/signal"
@@ -113,7 +114,20 @@ func main() {
 		hostname, _ := conf.GetString(account, "hostname")
 		username, _ := conf.GetString(account, "username")
 		password, _ := conf.GetString(account, "password")
-		go parts.Connect(notify, account, hostname, username, password)
+
+		folder, e := conf.GetString(account, "folder")
+		if e != nil {
+			folder = "INBOX"
+		}
+
+		poll, e := conf.GetInt(account, "poll")
+		if e != nil {
+			poll = 29
+		}
+
+		polli := time.Duration(poll) * time.Minute
+
+		go parts.Connect(notify, account, hostname, username, password, folder, polli)
 	}
 
 	// Let the user know that we've now initiated all the connections

@@ -32,6 +32,10 @@ options for an account are as follows:
  - click: An optional command to execute when clicking the tray icon if this,
    and only this, account has new messages. If this option is present, it
    overrides the global click option in the described scenario.
+ - folder: What folder to check for new messages. INBOX is the default.
+ - poll: How often (in minutes) to force a recheck of the account. By default it
+	 is set to 29 (as suggested in the spec) to avoid the server disconnecting us
+	 due to inactivity.
 
 # Installation #
 

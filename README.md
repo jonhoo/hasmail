@@ -1,25 +1,14 @@
 # Introduction #
 
-Simple tray icon for detecting new email on IMAP servers using IDLE for instant
-notifications.
+Using mutt (or pine), but annoyed that it doesn't give you any notifications
+when you've received new emails? hasmail is a simple tray application that
+detects new emails on IMAP servers using IDLE (push rather than pull). When it
+detects unseen messages, it shows a OSD style notification and changes the tray
+icon to indicate that you have new mail.
 
-Gives you a system tray icon showing whether you have new messages on any of the
-configured IMAP accounts. When run, it will open connections to all IMAP servers
-specified in the configuration file (details below) and set up an IDLE
-connection to get immediately notified of changes on the server.
-
-The system tray icon switches between three main icons:
-
- - an empty document, signifying no new emails
- - a single document, signifying a single new email across all accounts
- - a pile of documents, signifying multiple new emails across all accounts
-
-When hovering the mouse over the tray icon, a tooltip will be shown which
-displays the number of new messages for each configured account. Clicking the
-icon executes a user-defined command.
-
-Upon receiving new messages, an OSD notification will be displayed showing the
-subject lines of any new messages.
+When hovering the mouse over the tray icon, hasmail shows which of the
+configured accounts have unseen messages. Clicking the icon executes a
+user-defined command.
 
 # Configuration #
 

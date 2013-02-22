@@ -23,14 +23,16 @@ func Connect(notify chan bool,
 	poll time.Duration) {
 
 	// Connect to the server
-	fmt.Printf("%s: Connecting to server...\n", name)
+	fmt.Printf("%s: connecting to server...\n", name)
 	c, err := imap.DialTLS(address, nil)
 
 	if err != nil {
-		fmt.Printf("%s: Connection failed\n", name)
+		fmt.Printf("%s: connection failed, retrying in 3 minutes\n", name)
 		fmt.Println(" ", err)
 		Errs[name] = 1
 		notify <- false
+		time.Sleep(3 * time.Minute)
+		go Connect(notify, name, address, username, password, folder, poll)
 		return
 	}
 
@@ -40,7 +42,7 @@ func Connect(notify chan bool,
 	// If IDLE isn't supported, we're not going to fall back on polling
 	// Time to abandon ship!
 	if !c.Caps["IDLE"] {
-		fmt.Printf("%s: Server does not support IMAP IDLE, exiting...\n", name)
+		fmt.Printf("%s: server does not support IMAP IDLE, exiting...\n", name)
 		Errs[name] = 2
 		notify <- false
 		return
@@ -50,14 +52,14 @@ func Connect(notify chan bool,
 	if c.State() == imap.Login {
 		_, err = c.Login(username, password)
 	} else {
-		fmt.Printf("%s: No login presented, exiting...\n", name)
+		fmt.Printf("%s: no login presented, exiting...\n", name)
 		Errs[name] = 3
 		notify <- false
 		return
 	}
 
 	if err != nil {
-		fmt.Printf("%s: Login failed, exiting...\n", name)
+		fmt.Printf("%s: login failed, exiting...\n", name)
 		Errs[name] = 4
 		notify <- false
 		return
@@ -73,9 +75,11 @@ func Connect(notify chan bool,
 	cmd, err := c.Idle()
 
 	if err != nil {
-		fmt.Printf("%s failed to look for new emails\n", name)
+		// Fast reconnect
+		fmt.Printf("%s: connection failed, reconnecting...\n", name)
 		fmt.Println("  ", err)
 		Errs[name] = 5
+		go Connect(notify, name, address, username, password, folder, poll)
 		return
 	}
 
@@ -97,9 +101,10 @@ func Connect(notify chan bool,
 		cmd, err = c.Idle()
 
 		if err != nil {
-			fmt.Printf("%s failed to look for new emails\n", name)
+			fmt.Printf("%s: connection failed, reconnecting...\n", name)
 			fmt.Println("  ", err)
 			Errs[name] = 5
+			go Connect(notify, name, address, username, password, folder, poll)
 			return
 		}
 	}

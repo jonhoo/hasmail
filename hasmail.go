@@ -111,23 +111,7 @@ func main() {
 			continue
 		}
 
-		hostname, _ := conf.GetString(account, "hostname")
-		username, _ := conf.GetString(account, "username")
-		password, _ := conf.GetString(account, "password")
-
-		folder, e := conf.GetString(account, "folder")
-		if e != nil {
-			folder = "INBOX"
-		}
-
-		poll, e := conf.GetInt(account, "poll")
-		if e != nil {
-			poll = 29
-		}
-
-		polli := time.Duration(poll) * time.Minute
-
-		go parts.Connect(notify, account, hostname, username, password, folder, polli)
+		initConnection(notify, conf, account)
 	}
 
 	// Let the user know that we've now initiated all the connections
@@ -156,7 +140,6 @@ func main() {
 					s += "Login failed!"
 				case 5:
 					s += "Connection dropped!"
-					fmt.Printf("Detected dropped connection for %s\n", account)
 				}
 
 				s += "\n"
@@ -197,4 +180,24 @@ func main() {
 			}
 		}
 	}
+}
+
+// Initializes a new connection to the given account in a separate goroutine
+func initConnection(notify chan bool, conf *goconf.ConfigFile, account string) {
+	hostname, _ := conf.GetString(account, "hostname")
+	username, _ := conf.GetString(account, "username")
+	password, _ := conf.GetString(account, "password")
+
+	folder, e := conf.GetString(account, "folder")
+	if e != nil {
+		folder = "INBOX"
+	}
+
+	poll, e := conf.GetInt(account, "poll")
+	if e != nil {
+		poll = 29
+	}
+	polli := time.Duration(poll) * time.Minute
+
+	go parts.Connect(notify, account, hostname, username, password, folder, polli)
 }

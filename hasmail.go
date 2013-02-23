@@ -127,6 +127,10 @@ func main() {
 			totUnseen := 0
 			s := ""
 			for account, e := range parts.Errs {
+				if e == 0 {
+					continue
+				}
+
 				s += account + ": "
 
 				switch e {
@@ -146,6 +150,10 @@ func main() {
 			}
 
 			for account, unseenList := range parts.Unseen {
+				if (parts.Errs[account] != 0) {
+					continue
+				}
+
 				numUnseen := len(unseenList)
 
 				if numUnseen >= 0 {

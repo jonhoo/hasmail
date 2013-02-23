@@ -36,6 +36,9 @@ func Connect(notify chan bool,
 		return
 	}
 
+	// Connected successfully!
+	Errs[name] = 0
+
 	// Remember to log out and close the connection when finished
 	defer c.Logout(30 * time.Second)
 

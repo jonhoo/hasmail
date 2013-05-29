@@ -3,6 +3,7 @@ package parts
 import (
 	"fmt"
 	"time"
+	"io"
 	// http://godoc.org/code.google.com/p/go-imap/go1/imap
 	"code.google.com/p/go-imap/go1/imap"
 )
@@ -68,7 +69,11 @@ func Connect(notify chan bool,
 		return
 	}
 
-	c.Select(folder, true)
+	_, err = c.Select(folder, true)
+
+	if err != nil {
+		fmt.Printf("%s: could not open folder %s, exiting...\n", name, folder);
+	}
 
 	// Get initial unread messages count
 	fmt.Printf("%s initial state: ", name)
@@ -91,7 +96,19 @@ func Connect(notify chan bool,
 		// Wait for server messages
 		// Refresh every `poll` to avoid disconnection
 		// Defaults to 29 minutes (see spec)
-		c.Recv(poll)
+		err = c.Recv(poll)
+
+		if err == io.EOF {
+			fmt.Printf("%s: connection closed, reconnecting...\n", name);
+			fmt.Println("  ", err)
+			Errs[name] = 5
+			go Connect(notify, name, address, username, password, folder, poll)
+			return
+		}
+
+		if err != nil && err != imap.ErrTimeout {
+			fmt.Printf("%s: error during receive: %s\n", name, err);
+		}
 
 		// We don't really care about the data, just that there *is* data
 		cmd.Data = nil

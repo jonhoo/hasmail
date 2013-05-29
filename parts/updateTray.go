@@ -25,7 +25,7 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 	cmd, err := c.Search("UNSEEN")
 
 	if err != nil {
-		fmt.Printf("%s failed to look for new emails\n", name)
+		fmt.Printf("%s failed to look for new messages\n", name)
 		fmt.Println("  ", err)
 		return
 	}
@@ -37,7 +37,7 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 	unseenMessages := []uint32{}
 	for cmd.InProgress() {
 		// Wait for the next response (no timeout)
-		c.Recv(-1)
+		err = c.Recv(-1)
 
 		// Process command data
 		for _, rsp := range cmd.Data {
@@ -48,6 +48,17 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 		// Reset for next run
 		cmd.Data = nil
 		c.Data = nil
+	}
+
+	// Check command completion status
+	if rsp, err := cmd.Result(imap.OK); err != nil {
+			if err == imap.ErrAborted {
+					fmt.Println("fetch command aborted")
+			} else {
+					fmt.Println("fetch error:", rsp.Info)
+			}
+			
+			return
 	}
 
 	fmt.Printf("%d unseen\n", len(unseenMessages))

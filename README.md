@@ -44,6 +44,10 @@ Assuming you've checked this out into `$GOPATH/src/hasmail`, just run
 run `hasmail` and get the message "Failed to load configuration file,
 exiting...". Create your config and you're ready!
 
+If you're lucky enough to be running [Arch Linux](https://www.archlinux.org/),
+you can just install the package from [the
+AUR](https://aur.archlinux.org/packages/hasmail/) or run `makepkg` in `pkg/`.
+
 # Major dependencies #
 
  - https://github.com/mattn/go-gtk/

@@ -22,7 +22,8 @@ var Unseen = map[string][]uint32{}
 // messages, count them and store the result. Then it will use the notify
 // channel to let our main process update the status icon.
 func UpdateTray(c *imap.Client, notify chan bool, name string) {
-	cmd, err := c.Search("UNSEEN")
+	// Send > Search since Search adds CHARSET UTF-8 which might not be supported
+	cmd, err := c.Send("SEARCH", "UNSEEN")
 
 	if err != nil {
 		fmt.Printf("%s failed to look for new messages\n", name)

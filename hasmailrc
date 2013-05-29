@@ -3,17 +3,17 @@ click=urxvt -e mutt
 [@example.com]
 hostname=mail.example.com:993
 username=me@example.com
-password=mypassword
+password=gnome-keyring-query get mail_pw
 
 [My other account]
 hostname=imap.example.net
 username=me@example.net
-password=differentpassword
+password=echo mypassword
 click=urxvt -e sh -c "mutt -e 'source ~/.mutt/example.net.account'"
 
 [@nonstandard.com]
 hostname=mx.nonstandard.com
 username=me
-password=LKADJW
+password=echo mypassword
 folder=mybox
 poll=10

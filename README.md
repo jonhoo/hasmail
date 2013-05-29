@@ -28,7 +28,10 @@ options for an account are as follows:
  - hostname: The address (+ port) to connect to. MUST currently be SSL/TLS
    enabled. Required.
  - username: Username for authentication. Required.
- - password: Password for authentication. Required.
+ - password: Command to execute to get password for authentication. Required.
+	 Note that due to simplicity of parsing, the string is split on spaces and the
+	 first substring is used as the command, every other is treated as an
+	 argument. *Quoting is not supported!*
  - click: An optional command to execute when clicking the tray icon if this,
    and only this, account has new messages. If this option is present, it
    overrides the global click option in the described scenario.

@@ -194,7 +194,20 @@ func main() {
 func initConnection(notify chan bool, conf *goconf.ConfigFile, account string) {
 	hostname, _ := conf.GetString(account, "hostname")
 	username, _ := conf.GetString(account, "username")
-	password, _ := conf.GetString(account, "password")
+	passexec, _ := conf.GetString(account, "password")
+
+	ps := strings.Split(passexec, " ");
+	pwbytes, err := exec.Command(ps[0], ps[1:]...).Output()
+	if err != nil {
+		fmt.Printf("%s: password command failed: %s\n", account, err);
+		return;
+	}
+
+	password := strings.TrimRight(string(pwbytes), "\n")
+	if password == "" {
+		fmt.Printf("%s: password command returned an empty string\n", account);
+		return;
+	}
 
 	folder, e := conf.GetString(account, "folder")
 	if e != nil {

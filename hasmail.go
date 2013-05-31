@@ -90,6 +90,7 @@ func main() {
 		if geterr == nil {
 			fmt.Printf("Executing user command: %s\n", command)
 			sh := exec.Command("/bin/sh", "-c", command)
+			sh.Env = os.Environ()
 			err = sh.Start()
 			if err != nil {
 				fmt.Printf("Failed to run command '%s' on click\n", command)
@@ -196,7 +197,9 @@ func initConnection(notify chan bool, conf *goconf.ConfigFile, account string) {
 	username, _ := conf.GetString(account, "username")
 	passexec, _ := conf.GetString(account, "password")
 
-	pwbytes, err := exec.Command("/bin/sh", "-c", passexec).Output()
+	pw := exec.Command("/bin/sh", "-c", passexec)
+	pw.Env = os.Environ()
+	pwbytes, err := pw.Output()
 	if err != nil {
 		fmt.Printf("%s: password command failed: %s\n", account, err);
 		return;

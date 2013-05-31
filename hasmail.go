@@ -196,8 +196,7 @@ func initConnection(notify chan bool, conf *goconf.ConfigFile, account string) {
 	username, _ := conf.GetString(account, "username")
 	passexec, _ := conf.GetString(account, "password")
 
-	ps := strings.Split(passexec, " ");
-	pwbytes, err := exec.Command(ps[0], ps[1:]...).Output()
+	pwbytes, err := exec.Command("/bin/sh", "-c", passexec).Output()
 	if err != nil {
 		fmt.Printf("%s: password command failed: %s\n", account, err);
 		return;

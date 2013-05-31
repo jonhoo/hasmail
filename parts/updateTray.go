@@ -7,7 +7,7 @@ import (
 	"net/mail"
 	// http://godoc.org/code.google.com/p/go-imap/go1/imap
 	"code.google.com/p/go-imap/go1/imap"
-	// for click command
+	// for notify-send
 	"os/exec"
 	// for strings.TrimRight
 	"strings"

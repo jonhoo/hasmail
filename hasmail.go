@@ -89,7 +89,12 @@ func main() {
 
 		if geterr == nil {
 			fmt.Printf("Executing user command: %s\n", command)
-			sh := exec.Command("/bin/sh", "-c", command)
+			shell := os.Getenv("SHELL")
+			if shell == "" {
+				shell = "/bin/sh"
+			}
+
+			sh := exec.Command(shell, "-c", command)
 			sh.Env = os.Environ()
 			err = sh.Start()
 			if err != nil {
@@ -197,7 +202,12 @@ func initConnection(notify chan bool, conf *goconf.ConfigFile, account string) {
 	username, _ := conf.GetString(account, "username")
 	passexec, _ := conf.GetString(account, "password")
 
-	pw := exec.Command("/bin/sh", "-c", passexec)
+	sh := os.Getenv("SHELL")
+	if sh == "" {
+		sh = "/bin/sh"
+	}
+
+	pw := exec.Command(sh, "-c", passexec)
 	pw.Env = os.Environ()
 	pwbytes, err := pw.Output()
 	if err != nil {

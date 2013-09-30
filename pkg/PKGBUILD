@@ -2,13 +2,13 @@
 
 pkgname=hasmail
 pkgver=20130604
-pkgrel=3
+pkgrel=4
 pkgdesc="System tray application that checks for and notifies about new mail"
 arch=('x86_64' 'i686')
 url="http://github.com/Jonhoo/hasmail"
 license=('BSD')
 depends=('gtk2')
-makedepends=('go' 'git')
+makedepends=('go' 'git' 'mercurial')
 options=('!strip' '!emptydirs')
 _gourl=github.com/jonhoo/hasmail
 

@@ -18,7 +18,6 @@ build() {
 }
 
 package() {
-  source /etc/profile.d/go.sh
   mkdir -p "${pkgdir}/usr/bin"
   mkdir -p "${pkgdir}/etc/skel"
   install -p -m755 ${srcdir}/bin/* "$pkgdir/usr/bin"

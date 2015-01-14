@@ -2,8 +2,8 @@ package parts
 
 import (
 	"fmt"
-	"time"
 	"io"
+	"time"
 	// http://godoc.org/code.google.com/p/go-imap/go1/imap
 	"code.google.com/p/go-imap/go1/imap"
 )
@@ -63,7 +63,7 @@ func Connect(notify chan bool,
 	}
 
 	if err != nil {
-		fmt.Printf("%s: login failed, exiting...\n", name)
+		fmt.Printf("%s: login failed (%s), exiting...\n", name, err)
 		Errs[name] = 4
 		notify <- false
 		return
@@ -72,7 +72,7 @@ func Connect(notify chan bool,
 	_, err = c.Select(folder, true)
 
 	if err != nil {
-		fmt.Printf("%s: could not open folder %s, exiting...\n", name, folder);
+		fmt.Printf("%s: could not open folder %s (%s), exiting...\n", name, folder, err)
 	}
 
 	// Get initial unread messages count
@@ -99,7 +99,7 @@ func Connect(notify chan bool,
 		err = c.Recv(poll)
 
 		if err == io.EOF {
-			fmt.Printf("%s: connection closed, reconnecting...\n", name);
+			fmt.Printf("%s: connection closed, reconnecting...\n", name)
 			fmt.Println("  ", err)
 			Errs[name] = 5
 			go Connect(notify, name, address, username, password, folder, poll)
@@ -107,7 +107,7 @@ func Connect(notify chan bool,
 		}
 
 		if err != nil && err != imap.ErrTimeout {
-			fmt.Printf("%s: error during receive: %s\n", name, err);
+			fmt.Printf("%s: error during receive: %s\n", name, err)
 		}
 
 		// We don't really care about the data, just that there *is* data
@@ -121,7 +121,7 @@ func Connect(notify chan bool,
 		cmd, err = c.Idle()
 
 		if err != nil {
-			fmt.Printf("%s: connection failed, reconnecting...\n", name)
+			fmt.Printf("%s: connection failed (%s), reconnecting...\n", name, err)
 			fmt.Println("  ", err)
 			Errs[name] = 5
 			go Connect(notify, name, address, username, password, folder, poll)

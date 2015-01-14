@@ -5,9 +5,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/jonhoo/hasmail/parts"
 	"os"
 	"time"
+
+	"hasmail/parts"
 	// for signals
 	"os/signal"
 	"syscall"

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 	"time"
-	// http://godoc.org/code.google.com/p/go-imap/go1/imap
-	"code.google.com/p/go-imap/go1/imap"
+
+	"github.com/mxk/go-imap/imap"
 )
 
 // errs is a map from account (as defined in the config) to an error number for

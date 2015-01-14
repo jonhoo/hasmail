@@ -5,12 +5,12 @@ import (
 	// for parsing mail
 	"bytes"
 	"net/mail"
-	// http://godoc.org/code.google.com/p/go-imap/go1/imap
-	"code.google.com/p/go-imap/go1/imap"
 	// for notify-send
 	"os/exec"
 	// for strings.TrimRight
 	"strings"
+
+	"github.com/mxk/go-imap/imap"
 )
 
 // unseen is a map from account (as defined in the config) to the UIDs of unseen

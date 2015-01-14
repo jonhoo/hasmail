@@ -53,13 +53,13 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 
 	// Check command completion status
 	if rsp, err := cmd.Result(imap.OK); err != nil {
-			if err == imap.ErrAborted {
-					fmt.Println("fetch command aborted")
-			} else {
-					fmt.Println("fetch error:", rsp.Info)
-			}
-			
-			return
+		if err == imap.ErrAborted {
+			fmt.Println("fetch command aborted")
+		} else {
+			fmt.Println("fetch error:", rsp.Info)
+		}
+
+		return
 	}
 
 	fmt.Printf("%d unseen\n", len(unseenMessages))

@@ -157,7 +157,7 @@ func main() {
 			}
 
 			for account, unseenList := range parts.Unseen {
-				if (parts.Errs[account] != 0) {
+				if parts.Errs[account] != 0 {
 					continue
 				}
 
@@ -212,14 +212,14 @@ func initConnection(notify chan bool, conf *goconf.ConfigFile, account string) {
 	pw.Env = os.Environ()
 	pwbytes, err := pw.Output()
 	if err != nil {
-		fmt.Printf("%s: password command failed: %s\n", account, err);
-		return;
+		fmt.Printf("%s: password command failed: %s\n", account, err)
+		return
 	}
 
 	password := strings.TrimRight(string(pwbytes), "\n")
 	if password == "" {
-		fmt.Printf("%s: password command returned an empty string\n", account);
-		return;
+		fmt.Printf("%s: password command returned an empty string\n", account)
+		return
 	}
 
 	folder, e := conf.GetString(account, "folder")

@@ -203,12 +203,7 @@ func initConnection(notify chan bool, conf *goconf.ConfigFile, account string) {
 	username, _ := conf.GetString(account, "username")
 	passexec, _ := conf.GetString(account, "password")
 
-	sh := os.Getenv("SHELL")
-	if sh == "" {
-		sh = "/bin/sh"
-	}
-
-	pw := exec.Command(sh, "-c", passexec)
+	pw := exec.Command("/bin/sh", "-c", passexec)
 	pw.Env = os.Environ()
 	pwbytes, err := pw.Output()
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"hasmail/parts"
+	"github.com/jonhoo/hasmail/parts"
 	// for signals
 	"os/signal"
 	"syscall"

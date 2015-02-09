@@ -124,6 +124,10 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 			fmt.Println("Failed to notify user...")
 			fmt.Println(err)
 		}
+		go func() {
+			// collect exit code to avoid zombies
+			sh.Wait()
+		}()
 	}
 
 	Unseen[name] = unseenMessages

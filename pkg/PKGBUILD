@@ -13,7 +13,7 @@ options=('!strip' '!emptydirs')
 _gourl=github.com/jonhoo/hasmail
 
 build() {
-  GOPATH="$srcdir" go get -fix -v -x ${_gourl}
+  GOPATH="$srcdir" go get -fix -u -v -x ${_gourl}
 }
 
 check() {

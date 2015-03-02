@@ -43,17 +43,9 @@ func Connect(notify chan bool,
 	// Remember to log out and close the connection when finished
 	defer c.Logout(30 * time.Second)
 
-	// If IDLE isn't supported, we're not going to fall back on polling
-	// Time to abandon ship!
-	if !c.Caps["IDLE"] {
-		fmt.Printf("%s: server does not support IMAP IDLE, exiting...\n", name)
-		Errs[name] = 2
-		notify <- false
-		return
-	}
-
 	// Authenticate
 	if c.State() == imap.Login {
+		fmt.Printf("login %s '%s' '%s'\n", address, username, password)
 		_, err = c.Login(username, password)
 	} else {
 		fmt.Printf("%s: no login presented, exiting...\n", name)
@@ -65,6 +57,15 @@ func Connect(notify chan bool,
 	if err != nil {
 		fmt.Printf("%s: login failed (%s), exiting...\n", name, err)
 		Errs[name] = 4
+		notify <- false
+		return
+	}
+
+	// If IDLE isn't supported, we're not going to fall back on polling
+	// Time to abandon ship!
+	if !c.Caps["IDLE"] {
+		fmt.Printf("%s: server does not support IMAP IDLE, exiting...\n", name)
+		Errs[name] = 2
 		notify <- false
 		return
 	}

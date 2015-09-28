@@ -4,6 +4,7 @@ import (
 	"fmt"
 	// for parsing mail
 	"bytes"
+	"mime"
 	"net/mail"
 	// for notify-send
 	"os/exec"
@@ -95,7 +96,11 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 			for _, rsp := range cmd.Data {
 				header := imap.AsBytes(rsp.MessageInfo().Attrs["RFC822.HEADER"])
 				if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
-					messages[i] = msg.Header.Get("Subject")
+					subject := msg.Header.Get("Subject")
+					messages[i], err = new(mime.WordDecoder).DecodeHeader(subject)
+					if err != nil {
+						messages[i] = subject
+					}
 					i++
 				}
 			}

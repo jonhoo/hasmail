@@ -97,7 +97,7 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 				header := imap.AsBytes(rsp.MessageInfo().Attrs["RFC822.HEADER"])
 				if msg, _ := mail.ReadMessage(bytes.NewReader(header)); msg != nil {
 					subject := msg.Header.Get("Subject")
-					messages[i], err = mime.QEncoding.DecodeHeader(subject)
+					messages[i], err = new(mime.WordDecoder).DecodeHeader(subject)
 					if err != nil {
 						messages[i] = subject
 					}

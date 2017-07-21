@@ -1,0 +1,10 @@
+[Unit]
+Description=Simple tray icon for detecting new email on IMAP servers
+Documentation=https://github.com/jonhoo/hasmail#readme
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/hasmail
+
+[Install]
+WantedBy=default.target

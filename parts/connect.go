@@ -45,7 +45,7 @@ func Connect(notify chan bool,
 
 	// Authenticate
 	if c.State() == imap.Login {
-		fmt.Printf("login %s '%s' '%s'\n", address, username, password)
+		fmt.Printf("login to %s as %s\n", address, username)
 		_, err = c.Login(username, password)
 	} else {
 		fmt.Printf("%s: no login presented, exiting...\n", name)

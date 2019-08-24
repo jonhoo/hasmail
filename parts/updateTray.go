@@ -119,7 +119,7 @@ func UpdateTray(c *imap.Client, notify chan bool, name string) {
 
 		// And send them with notify-send!
 		title := fmt.Sprintf("%s has new mail (%d unseen)", name, len(unseenMessages))
-		sh := exec.Command("/usr/bin/notify-send",
+		sh := exec.Command("notify-send",
 			"-i", "notification-message-email",
 			"-c", "email",
 			title, notification)

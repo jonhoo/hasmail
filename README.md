@@ -1,3 +1,7 @@
+**This project has been rewritten in Rust, and is now maintained under https://github.com/jonhoo/buzz/.**
+
+---
+
 # Introduction #
 
 Using mutt (or pine), but annoyed that it doesn't give you any notifications
